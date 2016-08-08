@@ -31,6 +31,7 @@ function addItem(itemtext) {
 			var todoArray = addreq.responseText.split(',');
 			console.log('"' + itemtext + '"' + " is added on the server!");
 			localStorage.setItem("todolist", JSON.stringify(todoArray));
+			location.reload(false);
 		}	
 	};
 }
