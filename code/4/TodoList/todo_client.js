@@ -16,13 +16,13 @@ function handleBtnClick() {
 
 	var todoArray = JSON.parse(localStorage.getItem("todolist"));
 	if (todoArray && todoArray.indexOf(itemtext) != -1) {
-		alert('"'  + itemtext + '"' + "already exists!")
+		alert('"'  + itemtext + '"' + " already exists!")
 		return;
 	}
 	
 	addItem(itemtext);
 	
-	var isAdd2Sv = confirm("Do you want to add the " + '"' + itemtext + '"' + "on the server?")
+	var isAdd2Sv = confirm("Do you want to add the " + '"' + itemtext + '"' + " on the server?")
 	if (!isAdd2Sv) {
 		return;
 	}
@@ -38,8 +38,14 @@ function handleBtnClick() {
 	addreq.send(itemtext);
 	addreq.onreadystatechange = function () {
 		if ( 4 == addreq.readyState ){
-			var todoArray = addreq.responseText.split(',');
-			console.log('"' + itemtext + '"' + " is added on the server!");
+			switch (addreq.status){
+				case 200 :
+					var todoArray = addreq.responseText.split(',');
+					console.log('"' + itemtext + '"' + " is added on the server!");
+					break;
+				case 302:
+					alert('"' + itemtext + '"' + addreq.responseText);
+			}
 		}	
 	};
 }
@@ -79,7 +85,6 @@ function addItem(itemtext) {
 	li.appendChild(itemnode);
 	li.appendChild(btn);
 	ul.appendChild(li);
-	console.log('"' + li.outerHTML + '"' + " is added!");	
 	
 	var todoArray = JSON.parse(localStorage.getItem("todolist"));
 	if (null  == todoArray) {
@@ -90,10 +95,11 @@ function addItem(itemtext) {
 	}	
 	todoArray.push(itemtext);
 	localStorage.setItem("todolist", JSON.stringify(todoArray));
+	console.log('"' + itemtext + '"' + " is added on the localStorage!");
 }
 
 function delItem(item) {
-	var isDel = confirm("Are you sure delete "  + '"' + item + '"' + "on the server?");
+	var isDel = confirm("Are you sure delete "  + '"' + item + '"' + " on the server?");
 	if (!isDel) {
 		return;
 	}
@@ -106,7 +112,14 @@ function delItem(item) {
 	console.log('"' + item + '"' + " is sent!");
 	delReq.onreadystatechange = function() {
 		if ( 4 == delReq.readyState ) {
-			console.log( '"' + item + '"' + " is deleted on the server!");
+			switch (delReq.status){
+				case 200 :
+					console.log('"' + item + '"' + " is deleted on the server!");
+					break;
+				case 404 :
+					alert('"' + item + '"' + delReq.responseText);
+					break;
+			}
 		}
 	}
 }	
@@ -136,7 +149,6 @@ function getList(list) {
 		getReq.open("GET", url);
 		getReq.setRequestHeader("Content-type", "text/plain");
 		getReq.send();
-		console.log("Loading the todolist from server!");
 		getReq.onreadystatechange = function () {
 			if (4 == getReq.readyState) {
 				var todoArray = getReq.responseText.split(",");
