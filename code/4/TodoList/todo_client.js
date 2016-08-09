@@ -13,10 +13,20 @@ function handleBtnClick() {
 		alert("Please enter a task!");
 		return;
 	}
-	addItem(itemtext);
-}
 
-function addItem(itemtext) {
+	var todoArray = JSON.parse(localStorage.getItem("todolist"));
+	if (todoArray && todoArray.indexOf(itemtext) != -1) {
+		alert('"'  + itemtext + '"' + "already exists!")
+		return;
+	}
+	
+	addItem(itemtext);
+	
+	var isAdd2Sv = confirm("Do you want to add the " + '"' + itemtext + '"' + "on the server?")
+	if (!isAdd2Sv) {
+		return;
+	}
+
 	var url = "http://localhost:3000/";
 	var addreq = new XMLHttpRequest();
 
@@ -30,13 +40,63 @@ function addItem(itemtext) {
 		if ( 4 == addreq.readyState ){
 			var todoArray = addreq.responseText.split(',');
 			console.log('"' + itemtext + '"' + " is added on the server!");
-			localStorage.setItem("todolist", JSON.stringify(todoArray));
-			location.reload(false);
 		}	
 	};
 }
 
+function addItem(itemtext) {
+	var div = document.getElementById("show");
+	if (!div.childElementCount) {
+		var ul = document.createElement("ul");
+		ul.setAttribute("id", "lists");
+		div.appendChild(ul);
+	}
+
+	var ul = document.getElementById("lists");
+	var itemnode = document.createTextNode(itemtext);
+	var btn = document.createElement("button");
+	var delSign = document.createTextNode("X");
+	var index = ul.childElementCount;
+
+	btn.appendChild(delSign);
+	btn.setAttribute("id", index);
+	btn.setAttribute("class", "rmBtn");
+	btn.onclick = function () {
+		var that = this;			
+		var delIndex = that.getAttribute("id");
+		var delText = that.parentNode.textContent.replace("X", '');
+		var delLi = document.getElementById(delIndex).parentNode;
+
+		ul.removeChild(delLi);
+		todoArray.splice(delIndex, 1);
+		localStorage.setItem("todolist", JSON.stringify(todoArray));
+		console.log('"' + delText + '"' + " is deleted on the localStorage!");
+
+		delItem(delText);
+	};
+
+	var li = document.createElement("li");
+	li.appendChild(itemnode);
+	li.appendChild(btn);
+	ul.appendChild(li);
+	console.log('"' + li.outerHTML + '"' + " is added!");	
+	
+	var todoArray = JSON.parse(localStorage.getItem("todolist"));
+	if (null  == todoArray) {
+		todoArray = new Array();
+	}
+	if (todoArray.indexOf(itemtext) != -1) {
+		return;
+	}	
+	todoArray.push(itemtext);
+	localStorage.setItem("todolist", JSON.stringify(todoArray));
+}
+
 function delItem(item) {
+	var isDel = confirm("Are you sure delete "  + '"' + item + '"' + "on the server?");
+	if (!isDel) {
+		return;
+	}
 	var url = "http://localhost:3000/";
 	var delReq = new XMLHttpRequest();
 
@@ -46,53 +106,20 @@ function delItem(item) {
 	console.log('"' + item + '"' + " is sent!");
 	delReq.onreadystatechange = function() {
 		if ( 4 == delReq.readyState ) {
-			var todoArray = delReq.responseText.split(',');
 			console.log( '"' + item + '"' + " is deleted on the server!");
-			if ("" == todoArray) {
-				localStorage.removeItem("todolist");
-				return;
-			}
-			localStorage.setItem("todolist", JSON.stringify(todoArray));
 		}
 	}
 }	
 
 function showList(list) {
-	// var items = JSON.parse(responseText);
 	var todos = getList(list);
+	
 	if (!todos.length || "" == todos) {
 		return;
 	}
 
-	var ul = document.getElementsByTagName("ul");
 	for ( var index in todos){
-		var btn = document.createElement("button");
-		var delSign = document.createTextNode("X");
-		btn.appendChild(delSign);
-		btn.setAttribute("id", index);
-		btn.setAttribute("class", "rmBtn");
-		btn.onclick = function () {
-			var that = this;			
-			var delIndex = that.getAttribute("id");
-			var delText = todos[delIndex];
-			var isDel = confirm("Are you sure delete " + delText);
-			if (!isDel) {
-				return;
-			}
-
-			// ul[0].removeChild(that);
-			delItem(todos[delIndex]);
-			todos.splice(delIndex, 1);
-			console.log('"' + delText + '"' + " is deleted on the localStorage!");
-			location.reload(false);
-		};
-
-		var li = document.createElement("li");
-		var txt = document.createTextNode(todos[index]);
-		li.appendChild(txt);
-		li.appendChild(btn);
-		ul[0].appendChild(li);
-		console.log('"' + li.outerHTML + '"' + " is added!");
+		addItem(todos[index]);
 	}
 }
 
@@ -113,13 +140,16 @@ function getList(list) {
 		getReq.onreadystatechange = function () {
 			if (4 == getReq.readyState) {
 				var todoArray = getReq.responseText.split(",");
-				console.log('"' + todoArray + "'" + " is loaded!");
-				if ("" == todoArray) {
-				 return;
+				if ("" == todoArray  ) {
+					console.log("There is no task at the server!");
+					return;
 				}
+		
+				console.log('"' + todoArray + '"' + " is loaded from the server!");
 				localStorage.setItem(list, JSON.stringify(todoArray));
 				todolist = localStorage.getItem(list);
 				todolist = JSON.parse(todolist);
+				showList(list);
 			}
 		}
 	}
