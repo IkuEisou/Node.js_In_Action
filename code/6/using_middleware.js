@@ -10,7 +10,23 @@ function hello(req, res) {
   res.end('hello world');
 }
 
+function setup(format){
+	var regexp = /:(\w+)/g;
+	return function _logger(req, res, next){
+		var str = format.replace(regexp, function(match, property, offset, _str){
+			console.log('match is '+ '"' + match + '"' );
+			console.log('property is ' + '"' + property + '"');
+			console.log('offset is ' + '"' + offset + '"');
+			console.log('_str is ' + '"' + _str + '"');
+			return req[property];
+		});
+		console.log(str);
+		next();
+	}
+}
+
 connect()
-  .use(logger)
+  // .use(logger)
+  .use(setup(':method :url'))
   .use(hello)
   .listen(3000);
