@@ -8,18 +8,18 @@ function hello(req, res, next) {
   }
 }
 
-var db = {
-  users: [
-    { name: 'tobi' },
-    { name: 'loki' },
-    { name: 'jane' }
-  ]
+var userDB = {
+    tobi: 'tobi',
+    loki: 'loki',
+    jane: 'jane' 
 };
 
 function users(req, res, next) {
   var match = req.url.match(/^\/user\/(.+)/);
+  console.log("match is " + match);
   if (match) {
-    var user = db.users[match[1]];
+    var user = userDB[match[1]];
+    console.log("user is " + user);
     if (user) {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(user));
