@@ -2,12 +2,10 @@ var connect = require('connect');
 var bodyParser = require('body-parser');
 
 function errorHandler(err, req, res, next) {
-	res.setHeader('content-type', 'application/json');
+	res.setHeader('content-type', 'text/plain');
 	res.statusCode = err.status;
-  var msg = "error: " + err.message + "\nerror statusode："+ err.status ;
-
-  console.log(msg);
-  res.setHeader('content-type', 'text/plain');
+	var msg = "Error: " + err.message + "\nErrorCode："+ err.status ;
+	console.log(msg);
 	res.end(msg); 
 }
 
