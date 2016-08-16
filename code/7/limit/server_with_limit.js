@@ -11,6 +11,11 @@ function errorHandler(err, req, res, next) {
 
 var app = connect()
           .use(bodyParser.json({limit:'1b'}))
-          .use(errorHandler);
+          .use(errorHandler)
+          .use(function (req, res) {
+			res.setHeader('content-type', 'text/plain');
+			res.write("You post:");
+			res.end(JSON.stringify(req.body, null, 2));
+          });
 
 app.listen(3000);
