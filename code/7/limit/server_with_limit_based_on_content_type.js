@@ -9,27 +9,26 @@ function errorHandler(err, req, res, next) {
   res.end(msg); 
 }
 
-function setupLimit(type, lmt) {
-  // return function (req,res,next) {
-  //   var ct = req.headers['content-type'] || '';
-  //   console.log("Request type is " + ct);
-  //   if (0 != ct.indexOf(type)) {
-  //     return next();
-  //   }
-    switch(type){
-      case 'application/json':
-          return bodyParser.json({limit:lmt});
-      case 'application/x-www-form-urlencoded':
-          return bodyParser.urlencoded({extended:false, limit:lmt});          
+function setupLimit(type, fn) {
+  return function (req,res,next) {
+    var ct = req.headers['content-type'] || '';
+    console.log("Request type is " + ct);
+    console.log("Request body is " + JSON.stringify(req.body));
+    if (0 != ct.indexOf(type)) {
+      return next();
     }
-  // }  
+    fn(req, res, next);
+  }  
 }
 
 var app = connect()
-          .use(setupLimit('application/json', '1b'))
-          // .use(bodyParser.json({limit:'1mb'}))
+          .use(setupLimit('application/json', bodyParser.json({limit:'32kb'})))
+          .use(setupLimit('application/x-www-form-urlencoded', bodyParser.urlencoded({extended: false, limit:'64kb'})))
           .use(errorHandler)
           .use(function (req, res) {
+            var ct = req.headers['content-type'] || '';
+            console.log("Request type is " + ct);
+            console.log("Request body is " + JSON.stringify(req.body));
             res.setHeader('content-type', 'text/plain');
             res.write("You post:");
             res.end(JSON.stringify(req.body, null, 2));
