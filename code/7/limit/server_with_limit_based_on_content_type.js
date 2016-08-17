@@ -1,20 +1,37 @@
 var connect = require('connect');
+var bodyParser = require('body-parser');
 
-function type(type, fn) {
-  return function(req, res, next){
-    var ct = req.headers['content-type'] || '';
-    if (0 != ct.indexOf(type)) {
-      return next();
+function errorHandler(err, req, res, next) {
+  res.setHeader('content-type', 'text/plain');
+  res.statusCode = err.status;
+  var msg = "Error: " + err.message + "\nErrorCode："+ err.status ;
+  console.log(msg);
+  res.end(msg); 
+}
+
+function setupLimit(type, lmt) {
+  // return function (req,res,next) {
+  //   var ct = req.headers['content-type'] || '';
+  //   console.log("Request type is " + ct);
+  //   if (0 != ct.indexOf(type)) {
+  //     return next();
+  //   }
+    switch(type){
+      case 'application/json':
+          return bodyParser.json({limit:lmt});
+      case 'application/x-www-form-urlencoded':
+          return bodyParser.urlencoded({extended:false, limit:lmt});          
     }
-    fn(req, res, next);
-  }
+  // }  
 }
 
 var app = connect()
-          .use(type('application/x-www-form-urlencoded', connect.limit('64kb')))
-          .use(type('application/json', connect.limit('32kb')))
-          .use(type('image', connect.limit('2mb')))
-          .use(type('video', connect.limit('300mb')))
-          .use(connect.bodyParser());
-
+          .use(setupLimit('application/json', '1b'))
+          // .use(bodyParser.json({limit:'1mb'}))
+          .use(errorHandler)
+          .use(function (req, res) {
+            res.setHeader('content-type', 'text/plain');
+            res.write("You post:");
+            res.end(JSON.stringify(req.body, null, 2));
+          });
 app.listen(3000);
