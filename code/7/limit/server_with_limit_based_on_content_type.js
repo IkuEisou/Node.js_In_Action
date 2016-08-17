@@ -12,11 +12,10 @@ function errorHandler(err, req, res, next) {
 function setupLimit(type, fn) {
   return function (req,res,next) {
     var ct = req.headers['content-type'] || '';
-    console.log("Request type is " + ct);
-    console.log("Request body is " + JSON.stringify(req.body));
     if (0 != ct.indexOf(type)) {
       return next();
     }
+    console.log(ct + " limit is set!");
     fn(req, res, next);
   }  
 }
@@ -28,7 +27,6 @@ var app = connect()
           .use(function (req, res) {
             var ct = req.headers['content-type'] || '';
             console.log("Request type is " + ct);
-            console.log("Request body is " + JSON.stringify(req.body));
             res.setHeader('content-type', 'text/plain');
             res.write("You post:");
             res.end(JSON.stringify(req.body, null, 2));
