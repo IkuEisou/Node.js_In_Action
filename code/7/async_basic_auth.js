@@ -1,7 +1,7 @@
 var connect = require('connect');
+var basicAuth = require('basic-auth-connect');
 
 var app = connect();
-
 var User = {
   authenticate: function(credentials, callback) {
     if (credentials.user == 'tobi'
@@ -13,13 +13,16 @@ var User = {
   }
 }
 
-app.use(connect.basicAuth(function(user, pass, callback){
+app.use(basicAuth(function(user, pass, callback){
   User.authenticate({ user: user, pass: pass }, gotUser);
 
   function gotUser(err, user) {
     if (err) return callback(err);
     callback(null, user);
   }
-}));
+}))
+.use(function (req,res,next) {
+  res.end("Welcome tobi");
+});
 
 app.listen(3000);
