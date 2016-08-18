@@ -21,7 +21,7 @@ function update(req, res, next) {
 }
 
 var app = connect()
-    // .use(morgan('dev'))
+    .use(morgan('dev'))
 	.use(bodyParser.urlencoded({extended: false}))
 	.use(methodOverride(function(req, res){
   		if (req.body && typeof req.body === 'object' && '_method' in req.body) {
