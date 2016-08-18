@@ -2,6 +2,7 @@ var connect = require('connect');
 var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var csrf = require('csurf');
 
 var app = connect()
   .use(favicon(__dirname + '/public/favicon.ico'))
@@ -27,6 +28,7 @@ var app = connect()
       console.log("sess.views is reset");
       res.end('welcome to the session demo. refresh!');
     }
-  });
+  })
+  .use(csrf());
 
 app.listen(3000);
