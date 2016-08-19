@@ -33,7 +33,7 @@ router.upload = function(dir){
 		    if (err) {
 		      console.log(err);
 		    }  
-		    var filename = files.image.name;
+		    var filename = fields.name? (fields.name + '.' + files.image.name.split('.')[1]) : files.image.name;
 		    var newPath = form.uploadDir + filename ;
 		    console.log("fields body is " + JSON.stringify(fields));
 		    fs.rename(files.image.path, newPath, function (err) {
@@ -41,7 +41,7 @@ router.upload = function(dir){
 		      });  //上传文件
 
 		  	photos.push({
-				name: fields.name,
+				name: filename,
 				path: dir + filename
 			});
 			res.redirect('/');  		    
