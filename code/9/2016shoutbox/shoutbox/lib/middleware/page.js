@@ -1,10 +1,10 @@
 module.exports = function(fn, perpage){
   perpage = perpage || 10;
   return function(req, res, next){
-    console.log('page.js req.params[page] is '
-       + req.params['page']);   
+    console.log('page.js req.params.page is '
+       + req.params.page);   
     var page = Math.max(
-      parseInt(req.params['page'] || '1', 10),
+      parseInt(req.params.page || '1', 10),
       1
     ) - 1;
     
