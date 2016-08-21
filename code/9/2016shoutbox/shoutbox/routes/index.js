@@ -9,10 +9,11 @@ var Entry = require('../lib/entry');
 var upload = multer(); 
 
 module.exports = function(app) {
-	// app.get('/:page?', 
-	// 	page(Entry.count, 5),
-	// 	entries.list);
+	app.get('/:page', 
+		page(Entry.count, 5),
+		entries.list);
 	app.get('/', 
+		page(Entry.count, 5),
 		entries.list);
 	app.get('/post', entries.form);
 	app.post('/post', 

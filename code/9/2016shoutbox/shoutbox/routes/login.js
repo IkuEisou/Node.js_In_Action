@@ -13,7 +13,6 @@ exports.submit = function(req, res, next){
     if (err) return next(err);
     if (user) {
       req.session.uid = user.id;
-      console.log('login user is ' + user.id);
       console.log('req.session.uid is ' +  req.session.uid);
       res.redirect('/');
     } else {
@@ -24,6 +23,7 @@ exports.submit = function(req, res, next){
 };
 
 exports.logout = function(req, res){
+  console.log('logout req.session.uid is', + req.session.uid);
   req.session.destroy(function(err) {
     if (err) throw err;
     res.redirect('/');
